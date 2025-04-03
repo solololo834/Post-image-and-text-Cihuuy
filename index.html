@@ -1,150 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Create Account</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-            margin: 0;
-            text-align: center;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In & Create Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
 
-        h2 {
-            margin-bottom: 20px;
-        }
+    .container {
+      width: 80%;
+      margin: 0 auto;
+    }
 
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+    h2 {
+      text-align: center;
+    }
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
 
-        button:hover {
-            background-color: #0056b3;
-        }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-        .link {
-            margin-top: 10px;
-            font-size: 14px;
-        }
+    button:hover {
+      background-color: #0056b3;
+    }
 
-        .error-message {
-            color: red;
-            font-size: 14px;
-        }
-    </style>
+    .error-message {
+      color: red;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .toggle-link {
+      text-align: center;
+      margin-top: 10px;
+      cursor: pointer;
+      color: #007bff;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container" id="login-container">
-    <h2>Login</h2>
-    <input type="text" id="login-username" placeholder="Username" />
-    <input type="password" id="login-password" placeholder="Password" />
-    <button id="login-button">Login</button>
-    <div class="link">
-        Don't have an account? <span id="show-signup">Create one here</span>
-    </div>
-    <div id="login-error" class="error-message"></div>
-</div>
+<div class="container">
+  <!-- Login Form -->
+  <div id="login-form">
+    <h2>Sign In</h2>
+    <input type="text" id="login-username" placeholder="Enter Username" />
+    <input type="password" id="login-password" placeholder="Enter Password" />
+    <button id="loginButton">Login</button>
+    <div id="login-error-message" class="error-message"></div>
+    <div class="toggle-link" onclick="showCreateAccount()">Don't have an account? Create one here</div>
+  </div>
 
-<div class="container" id="signup-container" style="display:none;">
+  <!-- Create Account Form -->
+  <div id="create-account-form" style="display: none;">
     <h2>Create Account</h2>
-    <input type="text" id="signup-username" placeholder="Username" />
-    <input type="password" id="signup-password" placeholder="Password" />
-    <button id="signup-button">Create Account</button>
-    <div class="link">
-        Already have an account? <span id="show-login">Login here</span>
-    </div>
-    <div id="signup-error" class="error-message"></div>
+    <input type="text" id="create-username" placeholder="Create Username" />
+    <input type="password" id="create-password" placeholder="Create Password" />
+    <button id="createButton">Create Account</button>
+    <div id="create-error-message" class="error-message"></div>
+    <div class="toggle-link" onclick="showLogin()">Already have an account? Login here</div>
+  </div>
 </div>
 
 <script>
-    const loginContainer = document.getElementById('login-container');
-    const signupContainer = document.getElementById('signup-container');
-    const showSignup = document.getElementById('show-signup');
-    const showLogin = document.getElementById('show-login');
-    const loginButton = document.getElementById('login-button');
-    const signupButton = document.getElementById('signup-button');
-    const loginError = document.getElementById('login-error');
-    const signupError = document.getElementById('signup-error');
+  // Simulasi data username dan password
+  const validUsers = JSON.parse(localStorage.getItem('users')) || [];
 
-    const users = JSON.parse(localStorage.getItem('users')) || [];
+  // Fungsi login
+  document.getElementById('loginButton').addEventListener('click', function() {
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+    const loginErrorMessage = document.getElementById('login-error-message');
+    loginErrorMessage.textContent = ''; // Clear any previous error message
 
-    showSignup.addEventListener('click', () => {
-        loginContainer.style.display = 'none';
-        signupContainer.style.display = 'block';
-    });
+    // Cari user yang sesuai dengan username dan password
+    const user = validUsers.find(user => user.username === username && user.password === password);
 
-    showLogin.addEventListener('click', () => {
-        signupContainer.style.display = 'none';
-        loginContainer.style.display = 'block';
-    });
+    if (user) {
+      // Login sukses, redirect ke nonton&post page
+      window.location.href = 'https://solololo834.github.io/Home-page/';
+    } else {
+      // Jika tidak ada user yang cocok
+      loginErrorMessage.textContent = 'Invalid username or password';
+    }
+  });
 
-    loginButton.addEventListener('click', () => {
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+  // Fungsi untuk create account
+  document.getElementById('createButton').addEventListener('click', function() {
+    const username = document.getElementById('create-username').value;
+    const password = document.getElementById('create-password').value;
+    const createErrorMessage = document.getElementById('create-error-message');
+    createErrorMessage.textContent = ''; // Clear any previous error message
 
-        const user = users.find(user => user.username === username && user.password === password);
+    // Cek apakah username sudah ada
+    const existingUser = validUsers.find(user => user.username === username);
+    if (existingUser) {
+      createErrorMessage.textContent = 'Username already taken';
+    } else if (username && password) {
+      // Simpan user baru ke localStorage
+      validUsers.push({ username, password });
+      localStorage.setItem('users', JSON.stringify(validUsers));
 
-        if (user) {
-            loginError.textContent = '';
-            alert('Welcome back ' + username);
+      // Setelah berhasil create account, redirect ke nonton&post page
+      window.location.href = 'https://solololo834.github.io/Home-page/';
+    } else {
+      createErrorMessage.textContent = 'Please fill in both username and password';
+    }
+  });
 
-            // Redirect to the "nonton&post page" after login
-            window.location.href = 'https://solololo834.github.io/Home-page/'; // Ganti dengan URL yang sesuai
-        } else {
-            loginError.textContent = 'Invalid username or password';
-        }
-    });
+  // Fungsi untuk toggle ke form Create Account
+  function showCreateAccount() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('create-account-form').style.display = 'block';
+  }
 
-    signupButton.addEventListener('click', () => {
-        const username = document.getElementById('signup-username').value;
-        const password = document.getElementById('signup-password').value;
-
-        if (username && password) {
-            if (users.find(user => user.username === username)) {
-                signupError.textContent = 'Username already taken';
-            } else {
-                users.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                signupError.textContent = '';
-                alert('Account created successfully!');
-
-                // Redirect to the "nonton&post page" after signup
-                window.location.href = 'https://solololo834.github.io/Home-page/'; // Ganti dengan URL yang sesuai
-            }
-        } else {
-            signupError.textContent = 'Please enter both username and password';
-        }
-    });
+  // Fungsi untuk toggle ke form Login
+  function showLogin() {
+    document.getElementById('create-account-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+  }
 </script>
 
 </body>
-</html>
+    </html>
