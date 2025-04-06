@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In & Create Account</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In & Post System</title>
   <style>
+    /* [STYLE SAMA PERSIS DENGAN YANG SUDAH ADA] */
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       padding: 20px;
       margin: 0;
     }
-
     .container {
       width: 80%;
       margin: 0 auto;
     }
-
     h2 {
       text-align: center;
     }
-
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], textarea {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
@@ -29,9 +27,7 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
-
     button {
-      width: 100%;
       padding: 10px;
       background-color: #007bff;
       color: white;
@@ -40,107 +36,255 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #0056b3;
     }
-
     .error-message {
       color: red;
       font-size: 14px;
       text-align: center;
     }
-
     .toggle-link {
       text-align: center;
       margin-top: 10px;
       cursor: pointer;
       color: #007bff;
     }
+    .post-container {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #fff;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .post-container h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .post-container p {
+      font-size: 14px;
+      color: #333;
+    }
+    .like-button, .comment-button, .comment-submit, .delete-button {
+      margin-top: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+    .delete-button {
+      background-color: red;
+    }
+    .like-count {
+      margin-left: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .comment-section {
+      margin-top: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 5px;
+    }
+    .comment {
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .post-container img {
+      max-width: 100%;
+      max-height: 300px;
+      display: block;
+      margin: 10px auto;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-
-<div class="container">
-  <!-- Login Form -->
-  <div id="login-form">
-    <h2>Sign In</h2>
-    <input type="text" id="login-username" placeholder="Enter Username" />
-    <input type="password" id="login-password" placeholder="Enter Password" />
-    <button id="loginButton">Login</button>
-    <div id="login-error-message" class="error-message"></div>
-    <div class="toggle-link" onclick="showCreateAccount()">Don't have an account? Create one here</div>
+  <div class="container" id="auth-section">
+    <div id="login-form">
+      <h2>Sign In</h2>
+      <input type="text" id="login-username" placeholder="Enter Username" />
+      <input type="password" id="login-password" placeholder="Enter Password" />
+      <button id="loginButton">Login</button>
+      <div id="login-error-message" class="error-message"></div>
+      <div class="toggle-link" onclick="showCreateAccount()">Don't have an account? Create one here</div>
+    </div>
+    <div id="create-account-form" style="display: none;">
+      <h2>Create Account</h2>
+      <input type="text" id="create-username" placeholder="Create Username" />
+      <input type="password" id="create-password" placeholder="Create Password" />
+      <button id="createButton">Create Account</button>
+      <div id="create-error-message" class="error-message"></div>
+      <div class="toggle-link" onclick="showLogin()">Already have an account? Login here</div>
+    </div>
   </div>
 
-  <!-- Create Account Form -->
-  <div id="create-account-form" style="display: none;">
-    <h2>Create Account</h2>
-    <input type="text" id="create-username" placeholder="Create Username" />
-    <input type="password" id="create-password" placeholder="Create Password" />
-    <button id="createButton">Create Account</button>
-    <div id="create-error-message" class="error-message"></div>
-    <div class="toggle-link" onclick="showLogin()">Already have an account? Login here</div>
+  <div class="container" id="post-section" style="display: none;">
+    <h2>Create Post</h2>
+    <div id="error-message" class="error-message"></div>
+    <input type="file" id="fileInput" accept="image/*" />
+    <textarea id="postText" placeholder="Write something..." rows="4" cols="50"></textarea>
+    <button id="postButton">Post</button>
+    <div id="posts"></div>
   </div>
-</div>
 
-<script>
-  // Simulasi data username dan password
-  const validUsers = JSON.parse(localStorage.getItem('users')) || [];
+  <script>
+    const validUsers = JSON.parse(localStorage.getItem('users')) || [];
+    let currentUser = localStorage.getItem('currentUser');
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+    let selectedImageSrc = '';
 
-  // Fungsi login
-  document.getElementById('loginButton').addEventListener('click', function() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const loginErrorMessage = document.getElementById('login-error-message');
-    loginErrorMessage.textContent = ''; // Clear any previous error message
-
-    // Cari user yang sesuai dengan username dan password
-    const user = validUsers.find(user => user.username === username && user.password === password);
-
-    if (user) {
-      // Login sukses, redirect ke nonton&post page
-      window.location.href = 'https://solololo834.github.io/Home-page/';
-    } else {
-      // Jika tidak ada user yang cocok
-      loginErrorMessage.textContent = 'Invalid username or password';
+    function showCreateAccount() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('create-account-form').style.display = 'block';
     }
-  });
 
-  // Fungsi untuk create account
-  document.getElementById('createButton').addEventListener('click', function() {
-    const username = document.getElementById('create-username').value;
-    const password = document.getElementById('create-password').value;
-    const createErrorMessage = document.getElementById('create-error-message');
-    createErrorMessage.textContent = ''; // Clear any previous error message
-
-    // Cek apakah username sudah ada
-    const existingUser = validUsers.find(user => user.username === username);
-    if (existingUser) {
-      createErrorMessage.textContent = 'Username already taken';
-    } else if (username && password) {
-      // Simpan user baru ke localStorage
-      validUsers.push({ username, password });
-      localStorage.setItem('users', JSON.stringify(validUsers));
-
-      // Setelah berhasil create account, redirect ke nonton&post page
-      window.location.href = 'https://solololo834.github.io/Home-page/';
-    } else {
-      createErrorMessage.textContent = 'Please fill in both username and password';
+    function showLogin() {
+      document.getElementById('create-account-form').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
     }
-  });
 
-  // Fungsi untuk toggle ke form Create Account
-  function showCreateAccount() {
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('create-account-form').style.display = 'block';
-  }
+    function showPostSection() {
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('post-section').style.display = 'block';
+    }
 
-  // Fungsi untuk toggle ke form Login
-  function showLogin() {
-    document.getElementById('create-account-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-  }
-</script>
+    document.getElementById('loginButton').addEventListener('click', () => {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const user = validUsers.find(u => u.username === username && u.password === password);
+      if (user) {
+        localStorage.setItem('currentUser', username);
+        currentUser = username;
+        showPostSection();
+        renderPosts();
+      } else {
+        document.getElementById('login-error-message').textContent = 'Invalid username or password';
+      }
+    });
 
+    document.getElementById('createButton').addEventListener('click', () => {
+      const username = document.getElementById('create-username').value;
+      const password = document.getElementById('create-password').value;
+      const exists = validUsers.find(u => u.username === username);
+      if (exists) {
+        document.getElementById('create-error-message').textContent = 'Username already taken';
+      } else if (username && password) {
+        validUsers.push({ username, password });
+        localStorage.setItem('users', JSON.stringify(validUsers));
+        localStorage.setItem('currentUser', username);
+        currentUser = username;
+        showPostSection();
+        renderPosts();
+      } else {
+        document.getElementById('create-error-message').textContent = 'Please fill in both fields';
+      }
+    });
+
+    const fileInput = document.getElementById('fileInput');
+    const postText = document.getElementById('postText');
+    const postButton = document.getElementById('postButton');
+    const postsContainer = document.getElementById('posts');
+    const errorMessage = document.getElementById('error-message');
+
+    fileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          selectedImageSrc = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    postButton.addEventListener('click', function() {
+      const text = postText.value;
+      if (text || selectedImageSrc) {
+        const post = {
+          id: Date.now().toString(),
+          username: currentUser,
+          text: text,
+          image: selectedImageSrc,
+          likes: 0,
+          likedBy: [],
+          comments: []
+        };
+        posts.unshift(post);
+        localStorage.setItem('posts', JSON.stringify(posts));
+        renderPosts();
+        postText.value = '';
+        selectedImageSrc = '';
+        fileInput.value = '';
+      } else {
+        errorMessage.textContent = 'Please enter text or choose an image';
+      }
+    });
+
+    function renderPosts() {
+      postsContainer.innerHTML = '';
+      posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post-container';
+        const isOwner = post.username === currentUser;
+        postDiv.innerHTML = `
+          <h3>${post.username}</h3>
+          <p>${post.text}</p>
+          ${post.image ? `<img src="${post.image}" alt="Post image">` : ''}
+          <div>
+            <button class="like-button" onclick="toggleLike('${post.id}')">Like</button>
+            <span class="like-count">${post.likes} likes</span>
+            ${isOwner ? `<button class="delete-button" onclick="deletePost('${post.id}')">Delete</button>` : ''}
+            <div class="comment-section">
+              <input type="text" placeholder="Add a comment" id="comment-${post.id}" />
+              <button class="comment-submit" onclick="addComment('${post.id}')">Comment</button>
+              ${post.comments.map(comment => `<div class="comment">${comment}</div>`).join('')}
+            </div>
+          </div>`;
+        postsContainer.appendChild(postDiv);
+      });
+    }
+
+    function toggleLike(postId) {
+      const post = posts.find(p => p.id === postId);
+      if (!post.likedBy.includes(currentUser)) {
+        post.likes++;
+        post.likedBy.push(currentUser);
+      } else {
+        post.likes--;
+        post.likedBy = post.likedBy.filter(u => u !== currentUser);
+      }
+      localStorage.setItem('posts', JSON.stringify(posts));
+      renderPosts();
+    }
+
+    function addComment(postId) {
+      const input = document.getElementById(`comment-${postId}`);
+      const comment = input.value.trim();
+      if (comment) {
+        const post = posts.find(p => p.id === postId);
+        post.comments.push(`${currentUser}: ${comment}`);
+        input.value = '';
+        localStorage.setItem('posts', JSON.stringify(posts));
+        renderPosts();
+      }
+    }
+
+    function deletePost(postId) {
+      posts = posts.filter(p => p.id !== postId);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      renderPosts();
+    }
+
+    // Auto-login if already logged in
+    if (currentUser) {
+      showPostSection();
+      renderPosts();
+    }
+  </script>
 </body>
-    </html>
+</html>
